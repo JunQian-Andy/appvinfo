@@ -1,0 +1,5 @@
+20160129
+Traceback (most recent call last):
+  File "/opt/scripts/appv/main.py", line 82, in ?
+    avg_104tysxplay = int(sum104_tysxplay) / int(tysxplay104_num)
+ZeroDivisionError: integer division or modulo by zero
