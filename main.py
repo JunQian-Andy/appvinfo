@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/local/python27/bin/python
 
 from date_helper import str_to_time, get_add_datest2
 import log_helper
-import subprocess, time, datetime, os
+import subprocess, time, datetime, os, requests, json
 
 delay1_date = get_add_datest2(-1)
 global __log__path
@@ -52,6 +52,20 @@ def play_version(play_list=[]):
             num += 1
             diff_time(connent)
 
+def send_mail(mes, to=[], subject=None, cc=None):
+    r = None
+    headers = {'content-type': 'application/json',"Accept": "application/json"}
+    if cc == None:
+        vaule = {"emailto":to, "emailbody":mes, "emailsubject":subject, "emailcc":None}
+    else:
+        vaule = {"emailto":to, "emailcc":cc, "emailbody":mes, "emailsubject":subject}
+    try:
+        #r = requests.post(url = 'http://192.168.187.121:5000/mail',json = json.dumps(vaule),headers=headers);
+        r = requests.post(url = 'http://192.168.187.121:5000/mail', json = vaule, headers=headers);
+        print r.text
+    except Exception as e:
+        print e
+    return r
 
 if __name__ == "__main__":
     play_info = {}
@@ -75,9 +89,10 @@ if __name__ == "__main__":
         play_info['play_%s' %str(play_v)] = play_avg
 
     print play_info
-    mail_mes = "TYSX Play INFO: \n"
+    mes = "TYSX Play INFO: \n"
     for i in play_info:
         m = "%s:%d \n" %(i,play_info[i])
-        mail_mes += m
-   
-logger(mail_mes)
+        mes += m
+
+logger(mes)
+send_mail(mes, 'absolutezero3628@126.com', 'TYSX Play Info')
