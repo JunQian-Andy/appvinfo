@@ -64,7 +64,7 @@ def send_mail(mes, to=[], subject=None, cc=None):
         vaule = {"emailto":to, "emailbody":mes, "emailsubject":subject, "emailcc":None}
     else:
         ccto = cc.split(",")
-        vaule = {"emailto":to, "emailcc":cc, "emailbody":mes, "emailsubject":subject}
+        vaule = {"emailto":to, "emailcc":ccto, "emailbody":mes, "emailsubject":subject}
     try:
         #r = requests.post(url = 'http://192.168.187.121:5000/mail',json = json.dumps(vaule),headers=headers);
         r = requests.post(url = 'http://192.168.187.121:5000/mail', json = vaule, headers=headers);
@@ -101,4 +101,4 @@ if __name__ == "__main__":
         mes += m
 
     mailto = sendto.split(",")
-    send_mail(mes, mailto, 'TYSX Play Info')
+    send_mail(mes, mailto, 'TYSX Play Info',ccto)
