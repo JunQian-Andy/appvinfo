@@ -2,11 +2,17 @@
 
 from date_helper import str_to_time, get_add_datest2
 import log_helper
-import subprocess, time, datetime, os, requests, json
+import subprocess, time, datetime, os, requests, json, ConfigParser
 
 delay1_date = get_add_datest2(-1)
-global __log__path
-__log__path = "/opt/scripts/appv/result/%s" %(str(delay1_date))
+scripts_dir = os.getcwd()
+config_file = scripts_dir + '/config.ini'
+cf = ConfigParser.ConfigParser()
+cf.read(config_file)
+global __log_path
+__log__path = cf.get('global','log_path')
+sendto = cf.get('mail','sendto')
+ccto = cf.get('mail','ccto')
 
 def logger(mes):
     log_helper.get_logger(__log__path).info(mes)
@@ -31,7 +37,6 @@ def ticket_lines(file):
     f = open(file, 'r')
     line = f.readline()
     while line:
-        # yield line
         yield line.split("|")
         line = f.readline()
     f.close()
@@ -58,6 +63,7 @@ def send_mail(mes, to=[], subject=None, cc=None):
     if cc == None:
         vaule = {"emailto":to, "emailbody":mes, "emailsubject":subject, "emailcc":None}
     else:
+        ccto = cc.split(",")
         vaule = {"emailto":to, "emailcc":cc, "emailbody":mes, "emailsubject":subject}
     try:
         #r = requests.post(url = 'http://192.168.187.121:5000/mail',json = json.dumps(vaule),headers=headers);
@@ -88,11 +94,11 @@ if __name__ == "__main__":
         logger("play %s play_avg_time is %d" %(play_v, play_avg))
         play_info['play_%s' %str(play_v)] = play_avg
 
-    print play_info
+    logger(play_info)
     mes = "TYSX Play INFO: \n"
     for i in play_info:
         m = "%s:%d \n" %(i,play_info[i])
         mes += m
 
-logger(mes)
-send_mail(mes, 'absolutezero3628@126.com', 'TYSX Play Info')
+    mailto = sendto.split(",")
+    send_mail(mes, mailto, 'TYSX Play Info')
