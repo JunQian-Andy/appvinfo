@@ -2,10 +2,10 @@
 
 from date_helper import str_to_time, get_add_datest2
 import log_helper
-import subprocess, time, datetime, os, requests, json, ConfigParser
+import subprocess, time, datetime, os, requests, json, ConfigParser, sys
 
 delay1_date = get_add_datest2(-1)
-scripts_dir = os.getcwd()
+scripts_dir = sys.path[0]
 config_file = scripts_dir + '/config.ini'
 cf = ConfigParser.ConfigParser()
 cf.read(config_file)
