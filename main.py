@@ -5,8 +5,6 @@ import log_helper
 import subprocess, time, datetime, os, requests, json, ConfigParser, sys
 
 delay1_date = get_add_datest2(-1)
-#mailto = 'yuhai@tv189.com'
-#scripts_dir = os.getcwd()
 scripts_dir = sys.path[0]
 config_file = scripts_dir + '/config.ini'
 print config_file
@@ -17,9 +15,6 @@ __log__path = cf.get('global','log_path')
 sendto = cf.get('mail','sendto')
 ccto = cf.get('mail','ccto')
 mailaddr = cf.get('mail','mailaddr')
-
-#global __log__path
-#__log__path = "/opt/scripts/appv/result/%s" %(str(delay1_date))
 
 def logger(mes):
     log_helper.get_logger(__log__path).info(mes)
@@ -44,7 +39,6 @@ def ticket_lines(file):
     f = open(file, 'r')
     line = f.readline()
     while line:
-        # yield line
         yield line.split("|")
         line = f.readline()
     f.close()
@@ -109,10 +103,6 @@ if __name__ == "__main__":
     logger(play_info)
     print play_info
     print mes
-    #for i in play_info:
-    #    m = "%s:%d \n" %(i,play_info[i])
-    #    mes += m
 
-    #logger(mes)
     mailto = sendto.split(",")
     send_mail(mes, mailto, 'TYSX Play Info',ccto)
