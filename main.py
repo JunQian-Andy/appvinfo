@@ -5,14 +5,21 @@ import log_helper
 import subprocess, time, datetime, os, requests, json, ConfigParser, sys
 
 delay1_date = get_add_datest2(-1)
+#mailto = 'yuhai@tv189.com'
+#scripts_dir = os.getcwd()
 scripts_dir = sys.path[0]
 config_file = scripts_dir + '/config.ini'
+print config_file
 cf = ConfigParser.ConfigParser()
 cf.read(config_file)
-global __log_path
+global __log_path, sendto, ccto, mailaddr
 __log__path = cf.get('global','log_path')
 sendto = cf.get('mail','sendto')
 ccto = cf.get('mail','ccto')
+mailaddr = cf.get('mail','mailaddr')
+
+#global __log__path
+#__log__path = "/opt/scripts/appv/result/%s" %(str(delay1_date))
 
 def logger(mes):
     log_helper.get_logger(__log__path).info(mes)
@@ -37,6 +44,7 @@ def ticket_lines(file):
     f = open(file, 'r')
     line = f.readline()
     while line:
+        # yield line
         yield line.split("|")
         line = f.readline()
     f.close()
@@ -60,14 +68,14 @@ def play_version(play_list=[]):
 def send_mail(mes, to=[], subject=None, cc=None):
     r = None
     headers = {'content-type': 'application/json',"Accept": "application/json"}
-    if cc == None:
+    if cc == None or cc == [] :
         vaule = {"emailto":to, "emailbody":mes, "emailsubject":subject, "emailcc":None}
     else:
         ccto = cc.split(",")
         vaule = {"emailto":to, "emailcc":ccto, "emailbody":mes, "emailsubject":subject}
     try:
         #r = requests.post(url = 'http://192.168.187.121:5000/mail',json = json.dumps(vaule),headers=headers);
-        r = requests.post(url = 'http://192.168.187.121:5000/mail', json = vaule, headers=headers);
+        r = requests.post(url = mailaddr, json = vaule, headers=headers);
         print r.text
     except Exception as e:
         print e
@@ -75,6 +83,7 @@ def send_mail(mes, to=[], subject=None, cc=None):
 
 if __name__ == "__main__":
     play_info = {}
+    mes = "TYSX Play INFO: \n"
     ticket_file = "/data/ftpsite/DataCenter/tysx_hms_%s_ver1.txt" %(str(delay1_date))
     play_list = awk(ticket_file)
     for play_v in play_list:
@@ -88,17 +97,22 @@ if __name__ == "__main__":
                 print e
         play_sum = sum(a)
         logger("paly %s sum is %d" %(play_v, play_sum))
+        mes += "paly %s sum is %d \n" %(play_v, play_sum)
         play_num = len(a)
-        logger("play %s num is %d" %(play_v, play_num))
+        logger("play %s num is %d " %(play_v, play_num))
+        mes += "play %s num is %d \n" %(play_v, play_num)
         play_avg = play_sum / play_num
         logger("play %s play_avg_time is %d" %(play_v, play_avg))
+        mes += "play %s play_avg_time is %d \n\n" %(play_v, play_avg)
         play_info['play_%s' %str(play_v)] = play_avg
 
     logger(play_info)
-    mes = "TYSX Play INFO: \n"
-    for i in play_info:
-        m = "%s:%d \n" %(i,play_info[i])
-        mes += m
+    print play_info
+    print mes
+    #for i in play_info:
+    #    m = "%s:%d \n" %(i,play_info[i])
+    #    mes += m
 
+    #logger(mes)
     mailto = sendto.split(",")
     send_mail(mes, mailto, 'TYSX Play Info',ccto)
